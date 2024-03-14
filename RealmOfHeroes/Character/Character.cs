@@ -1,6 +1,8 @@
-﻿namespace RealmOfHeroes.Character;
+﻿using RealmOfHeroes.Combat;
 
-class Character
+namespace RealmOfHeroes.Character;
+
+public abstract class Character
 {
     public string Name { get; }
     public int Health { get; protected set; }
@@ -30,4 +32,8 @@ class Character
         Console.WriteLine($"{Name} took {damage} damage!");
         Health -= damage;
     }
+
+    public abstract Dictionary<CombatAction, string> GetCombatActions();
+
+    public abstract void PerformCombatAction(CombatAction action, Character opponent);
 }

@@ -1,6 +1,6 @@
 ﻿namespace RealmOfHeroes.Character.Monster;
 
-class Skeleton : Monster
+public class Skeleton : Monster
 {
     public Skeleton() : base("Skeleton", 40)
     {

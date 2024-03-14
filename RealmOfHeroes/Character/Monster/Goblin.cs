@@ -1,6 +1,6 @@
 ﻿namespace RealmOfHeroes.Character.Monster;
 
-class Goblin : Monster
+public class Goblin : Monster
 {
     public Goblin() : base("Goblin", 30)
     {

@@ -1,23 +1,26 @@
-﻿namespace RealmOfHeroes.Character;
+﻿using RealmOfHeroes.Combat;
+using RealmOfHeroes.WorldMap;
 
-class Player : Character
+namespace RealmOfHeroes.Character;
+
+public class Player : Character
 {
-    public int CurrentLocationX { get; private set; }
+    public Location CurrentLocation { get; private set; }
 
-    public int CurrentLocationY { get; private set; }
+    private readonly Map _map;
 
-    public Player(string name, int initialX, int initialY) : base(name, 100)
+    private Player(string name, Map map, Location initialLocation) : base(name, 100)
     {
-        CurrentLocationX = initialX;
-        CurrentLocationY = initialY;
+        CurrentLocation = initialLocation;
+        _map = map;
     }
 
-    public static Player CreateCharacter()
+    public static Player Create(Map map, Location initialLocation)
     {
         Console.Write("Enter your character's name: ");
         string playerName = Console.ReadLine() ?? "Hero";
         Console.WriteLine();
-        return new Player(playerName, 0, 0);
+        return new Player(playerName, map, initialLocation);
     }
 
     public void Heal()
@@ -28,9 +31,61 @@ class Player : Character
         Health += healing;
     }
 
-    public void UpdateLocation(int newX, int newY)
+    private void UpdateLocation(Location newLocation)
     {
-        CurrentLocationX = newX;
-        CurrentLocationY = newY;
+        CurrentLocation = newLocation;
+        newLocation.ExecuteLocationEvents(this);
+    }
+
+    public void PerformAction(PlayerAction action)
+    {
+        switch (action)
+        {
+            case PlayerAction.MoveNorth:
+                UpdateLocation(_map.Locations[CurrentLocation.Coordinates.X, CurrentLocation.Coordinates.Y + 1]);
+                break;
+
+            case PlayerAction.MoveSouth:
+                UpdateLocation(_map.Locations[CurrentLocation.Coordinates.X, CurrentLocation.Coordinates.Y - 1]);
+                break;
+
+            case PlayerAction.MoveEast:
+                UpdateLocation(_map.Locations[CurrentLocation.Coordinates.X + 1, CurrentLocation.Coordinates.Y]);
+                break;
+
+            case PlayerAction.MoveWest:
+                UpdateLocation(_map.Locations[CurrentLocation.Coordinates.X - 1 , CurrentLocation.Coordinates.Y]);
+                break;
+
+            case PlayerAction.DisplayStats:
+                DisplayStats();
+                break;
+
+            case PlayerAction.Quit:
+                Console.WriteLine("Thanks for playing! See you next time.");
+                Environment.Exit(0);
+                break;
+        }
+
+        Console.WriteLine();
+    }
+
+    public override Dictionary<CombatAction, string> GetCombatActions() => new() {
+            { CombatAction.Heal, "Heal Yourself" },
+            { CombatAction.Attack, "Attack the monster" },
+        };
+
+    public override void PerformCombatAction(CombatAction action, Character opponent)
+    {
+        switch (action)
+        {
+            case CombatAction.Heal:
+                Heal();
+                break;
+
+            case CombatAction.Attack:
+                Attack(opponent);
+                break;
+        }
     }
 }
